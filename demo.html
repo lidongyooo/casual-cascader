@@ -3,81 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <style>
-        .cascader-panel{
-            display: inline-flex;
-            border-radius: 4px;
-            font-size: 14px;/*options*/
-            color: #606266;/*options*/
-            font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;
-            box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
-            width: auto;
-        }
-        .cascader-menu{
-            background-color: white;/*options*/
-            min-width: 180px;/*options*/
-            box-sizing: border-box;;
-            border-right: 1px solid #e4e7ed;/*options*/
-        }
-        .cascader-menu:last-child{
-            border: 0px;
-        }
-        .cascader-menu-list {
-            max-height: 190px;/*options*/
-            overflow-y: scroll;
-            list-style: none;
-            margin: 0px;
-            padding: 10px 0px 10px 0px;
-        }
-        .cascader-menu-list-item{
-            margin: 0px;
-            display: flex;
-            padding: 5px 0px 5px 0px;
-            cursor:default;
-        }
-        .cascader-menu-list-item_active{
-            color: #409eff;
-            font-weight: 700;
-        }
-        .cascader-menu-list-item-text{
-            flex: 4.5;
-            padding-left: 20px;
-        }
-        .cascader-menu-list-item-icon{
-            flex: 1;
-            font-size: 16.8px;
-            position: relative;
-            bottom: 2px;
-        }
-
-        /*整体部分*/
-        .cascader-menu-list::-webkit-scrollbar
-        {
-            width: 8px;
-            height: 8px;
-        }
-        /*滑动轨道*/
-        .cascader-menu-list::-webkit-scrollbar-track
-        {
-            border-radius: 0px;
-            background: none;
-        }
-        /*滑块*/
-        .cascader-menu-list::-webkit-scrollbar-thumb
-        {
-            border-radius: 5px;
-            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
-            background-color: #F2F2F2
-        }
-        /*滑块效果*/
-        .cascader-menu-list::-webkit-scrollbar-thumb:hover
-        {
-            border-radius: 5px;
-            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
-            background-color: rgba(85, 85, 85, 0.4);
-        }
-
-    </style>
+    <link rel="stylesheet" href="src/casual-cascader.css">
 </head>
 <body>
     <input id="demo" style="margin-left: 500px;" type="text">
@@ -156,31 +82,12 @@
         </div>
     </div>
 
+    <script type="text/javascript" src="src/casual-cascader.js"></script>
     <script type="text/javascript">
-        let ele = document.getElementById('demo');
-
-
-
-        // 获取元素的绝对位置坐标（像对于页面左上角）
-        function getElementPagePosition(element){
-            //计算x坐标
-            let actualLeft = element.offsetLeft;
-            let current = element.offsetParent;
-            while (current !== null){
-                actualLeft += current.offsetLeft;
-                current = current.offsetParent;
-            }
-            //计算y坐标
-            var actualTop = element.offsetTop;
-            current = element.offsetParent;
-            while (current !== null){
-                actualTop += (current.offsetTop+current.clientTop);
-                current = current.offsetParent;
-            }
-            //返回结果
-            return {x: actualLeft, y: actualTop}
-        }
-
+        let xx = new CasualCascader({
+            element : document.getElementById('demo'),
+            names : [],
+        })
     </script>
 </body>
 </html>
