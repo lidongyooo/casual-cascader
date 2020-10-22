@@ -16,11 +16,14 @@ const CASUAL_PANEL = '<div class="casual-panel">',
       DIV_END = '</div>'
 
 const CASUAL_PANEL_CLASS = 'casual-panel',
-      CASUAL_MENU_CLASS = 'casual-menu'
+      CASUAL_MENU_CLASS = 'casual-menu',
+      CASUAL_MENU_LIST_ITEM_CLASS = 'casual-menu-list-item'
 
-let that = null
+let casualIndex = 1,
+    configs  = {}
+
 let CasualCascader = function(element,data,options){
-    that = this
+    let _this =  this
     options = options || {}
 
     if( !(element) ){
@@ -28,13 +31,17 @@ let CasualCascader = function(element,data,options){
     }else if( !(data) ){
         throw '请给定数据'
     }
-
-    that.data = data
-    that.element = element
+    _this.data = data
+    _this.element = element
+    options.casualIndex = CASUAL_PANEL_CLASS+'-'+casualIndex
+    options.data = _this.data
     //合并配置
-    Object.assign(that.config,options)
+    Object.assign(_this.config,options)
 
-    that.render()
+    _this.bindConfigs()
+    _this.render()
+
+    casualIndex++
 }
 
 //初始配置
@@ -50,30 +57,65 @@ CasualCascader.prototype.config = {
     backgroundColor : 'white',
     children : 'children', //子级字段名称
     visibility : 'name', //显示字段名称
-    show : false //是否显示
+    isShow : false //是否显示
+}
+
+CasualCascader.prototype.bindConfigs = function(){
+    configs[this.config['casualIndex']] = this.config
 }
 
 //渲染
-CasualCascader.prototype.render = () => {
+CasualCascader.prototype.render = function () {
+    let _this =  this
+
     let attributes = {
-        left : that.getElementLeft(),
-        top : that.getElementTop()+that.element.offsetHeight,
-        height : that.element.offsetHeight,
-        width : that.element.offsetWidth
+        left : _this.getElementLeft(),
+        top : _this.getElementTop()+_this.element.offsetHeight,
+        height : _this.element.offsetHeight,
+        width : _this.element.offsetWidth
     }
 
     let content  = [];
     content.push(CASUAL_PANEL)
-    content = content.concat(that.renderMenu())
+    content = content.concat(generateMenu(_this.data,_this.config))
     content.push(DIV_END)
-    that.element.insertAdjacentHTML('afterend',content.join(''))
+    _this.element.insertAdjacentHTML('afterend',content.join(''))
 
-    that.show()
-    that.element.addEventListener('click',that.show)
+    //添加类名
+    _this.element.nextSibling.classList.add(_this.config.casualIndex)
+    _this.show()
+
+    //绑定事件
+    _this.element.addEventListener('click',_this.show)
+    let items = document.getElementsByClassName(CASUAL_MENU_LIST_ITEM_CLASS)
+    for (let index = 0; index <  items.length-1; index++){
+        if(parseInt(items[index].getAttribute('data-count')) > 0){
+            items[index].addEventListener('click',_this.together)
+        }
+    }
 }
 
+CasualCascader.prototype.together = function (event) {
+    //首先删除后面的menu
+    let element = event.target,
+        currCasualMenu =  element.tagName === 'SPAN' ? element.parentNode.parentNode.parentNode : element.parentNode.parentNode,
+        casualMenus = element.tagName === 'SPAN' ? element.parentNode.parentNode.parentNode.parentNode.children: element.parentNode.parentNode.parentNode.children,
+        dataIndex = element.getAttribute('data-index'),
+        index = dataIndex.split('-').length, //当前点击的层级
+        config = configs[currCasualMenu.parentNode.classList[1]],
+        data = config['data']
+
+        removeNextSiblings(element,currCasualMenu,casualMenus)
+
+        for (let i = 0; i < index;i++){
+            data = data[dataIndex.split('-')[i]]
+        }
+        document.getElementsByClassName(config['casualIndex'])[0].insertAdjacentHTML('beforeend',generateMenu(data,config,dataIndex).join(''))
+}
+
+
 //批量设置属性
-CasualCascader.prototype.style = (elements,styles) => {
+CasualCascader.prototype.style = function (elements,styles) {
 
     for (let index in elements){
         for (let key in styles){
@@ -84,42 +126,25 @@ CasualCascader.prototype.style = (elements,styles) => {
 }
 
 //显示隐藏
-CasualCascader.prototype.show = (event) => {
-    event = event || null
-    if(event !== null){
-        that.config.show = that.config.show ? false : true
+CasualCascader.prototype.show = function (event) {
+    let _this =  this,
+        panelIndex = event !== undefined ? event.target.nextSibling.classList[1] : _this.element.nextSibling.classList[1]
+
+    if(event !== undefined){
+        configs[panelIndex]['isShow'] = configs[panelIndex]['isShow'] ? false : true
     }
 
-    if(that.config.show){
-        that.element.nextSibling['style']['display'] = 'inline-flex'
+    if(configs[panelIndex]['isShow']){
+        document.getElementsByClassName(panelIndex)[0]['style']['display'] = 'inline-flex'
     }else{
-        that.element.nextSibling['style']['display'] = 'none'
+        document.getElementsByClassName(panelIndex)[0]['style']['display'] = 'none'
     }
-
 }
 
-CasualCascader.prototype.renderMenu = () => {
-    let length = document.getElementsByClassName(CASUAL_MENU_CLASS).length,
-        temp = [],
-        counter = '',
-        row = {}
+CasualCascader.prototype.getElementLeft = function () {
+    let _this =  this
 
-    temp.push(CASUAL_MENU+CASUAL_MENU_LIST)
-    if(length === 0){
-        for (let key in that.data){
-            row = that.data[key]
-            counter = that.config.children in row ? '（'+row[that.config.children].length+'）</span><span class="casual-menu-list-item-icon casual-icon-right"></span>' : '</span>'
-            temp.push('<li class="casual-menu-list-item" data-count="'+row[that.config.children].length+'"><span class="casual-menu-list-item-text">'+row[that.config.visibility]+counter+'</li>')
-        }
-    }
-    //casual-menu & casual-menu-list
-    temp.push(DIV_END+DIV_END)
-
-    return temp
-}
-
-CasualCascader.prototype.getElementLeft = () =>{
-    let element = that.element
+    let element = _this.element
     let actualLeft = element.offsetLeft
     let current = element.offsetParent
 
@@ -131,8 +156,10 @@ CasualCascader.prototype.getElementLeft = () =>{
     return actualLeft
 }
 
-CasualCascader.prototype.getElementTop = () =>{
-    let element = that.element
+CasualCascader.prototype.getElementTop = function () {
+    let _this =  this
+
+    let element = _this.element
     let actualTop = element.offsetTop
     let current = element.offsetParent
 
@@ -142,4 +169,42 @@ CasualCascader.prototype.getElementTop = () =>{
     }
 
     return actualTop
+}
+
+//删除后面的节点
+function removeNextSiblings(element,currCasualMenu,casualMenus){
+
+    casualMenus =  [].filter.call(casualMenus, function(menu) {
+        return menu !== currCasualMenu;
+    });
+
+    casualMenus.forEach(menu => {
+        menu.remove()
+    })
+    console.log(casualMenus)
+}
+
+function generateMenu(data,config,index) {
+    let length = document.getElementsByClassName(config.casualIndex).length > 0 ? document.getElementsByClassName(config.casualIndex)[0].getElementsByClassName(CASUAL_MENU_CLASS).length : 0,
+        temp = [],
+        counter = '',
+        row = {}
+
+    index = index || ''
+    temp.push(CASUAL_MENU+CASUAL_MENU_LIST)
+    if(length !== 0){
+        data =  data[config['children']]
+        index += '-'
+    }
+
+    for (let key in data){
+        row = data[key]
+        counter = config.children in row ? '（'+row[config.children].length+'）</span><span data-index="'+index+key+'" class="casual-menu-list-item-icon casual-icon-right"></span>' : '</span>'
+        temp.push('<li class="casual-menu-list-item" data-index="'+index+key+'" data-count="'+row[config.children].length+'"><span data-index="'+index+key+'" class="casual-menu-list-item-text">'+row[config.visibility]+counter+'</li>')
+    }
+
+    //casual-menu & casual-menu-list
+    temp.push(DIV_END+DIV_END)
+
+    return temp
 }
