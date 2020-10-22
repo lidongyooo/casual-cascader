@@ -1,6 +1,6 @@
 @charset "UTF-8";
 
-.cascader-panel {
+.casual-panel {
     display: inline-flex;
     border-radius: 4px;
     font-size: 14px; /*options*/
@@ -10,18 +10,18 @@
     width: auto;
 }
 
-.cascader-menu {
+.casual-menu {
     background-color: white; /*options*/
     min-width: 180px; /*options*/
     box-sizing: border-box;;
     border-right: 1px solid #e4e7ed; /*options*/
 }
 
-.cascader-menu:last-child {
+.casual-menu:last-child {
     border: 0px;
 }
 
-.cascader-menu-list {
+.casual-menu-list {
     max-height: 190px; /*options*/
     overflow-y: scroll;
     list-style: none;
@@ -29,51 +29,53 @@
     padding: 10px 0px 10px 0px;
 }
 
-.cascader-menu-list-item {
+.casual-menu-list-item {
     margin: 0px;
     display: flex;
     padding: 5px 0px 5px 0px;
     cursor: default;
 }
 
-.cascader-menu-list-item_active {
+.casual-menu-list-item_active {
     color: #409eff;/*options*/
     font-weight: 700;
 }
 
-.cascader-menu-list-item-text {
+.casual-menu-list-item-text {
     flex: 4.5;
     padding-left: 20px;
 }
 
-.cascader-menu-list-item-icon {
+.casual-menu-list-item-icon {
     flex: 1;
-    font-size: 16.8px;
     position: relative;
     bottom: 2px;
 }
+.casual-icon-right:before{
+    content: "\25BA";
+}
 
 /*整体部分*/
-.cascader-menu-list::-webkit-scrollbar {
+.casual-menu-list::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
 /*滑动轨道*/
-.cascader-menu-list::-webkit-scrollbar-track {
+.casual-menu-list::-webkit-scrollbar-track {
     border-radius: 0px;
     background: none;
 }
 
 /*滑块*/
-.cascader-menu-list::-webkit-scrollbar-thumb {
+.casual-menu-list::-webkit-scrollbar-thumb {
     border-radius: 5px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .2);
     background-color: #F2F2F2
 }
 
 /*滑块效果*/
-.cascader-menu-list::-webkit-scrollbar-thumb:hover {
+.casual-menu-list::-webkit-scrollbar-thumb:hover {
     border-radius: 5px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .2);
     background-color: rgba(85, 85, 85, 0.4);
