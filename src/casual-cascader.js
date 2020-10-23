@@ -29,7 +29,6 @@ let casualIndex = 1,
 let CasualCascader = function (element, data, options) {
     let _this = this
     options = options || {}
-
     //初始配置
     let config = {
         names: ['province', 'city', 'district', 'street'], //input的name值
@@ -48,6 +47,7 @@ let CasualCascader = function (element, data, options) {
         visibility: 'name', //显示字段名称
         close: true,
         isShow: false, //是否显示
+        isShowed : false,
         iconLeft: 0,
         iconTop: 0,
         iconSize : '16px',
@@ -103,6 +103,10 @@ CasualCascader.prototype.default = function(config){
             break
         }
         index++
+    }
+
+    for (let key in casualConfigs){
+        casualConfigs[key]['isShowed'] = true
     }
 }
 
@@ -333,7 +337,7 @@ function clickLast(event) {
     activeClass(element, config)
 
     //是否阻止事件冒泡
-    if (config.close === false) {
+    if (config.close === false || !config.isShowed) {
         event.stopPropagation()
     } else {
         hidePanel()
