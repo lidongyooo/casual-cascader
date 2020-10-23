@@ -9,6 +9,7 @@
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .2);
     width: auto;
     position: absolute;
+    z-index: 9999999999;
 }
 
 .casual-menu {
@@ -60,14 +61,23 @@
     position: relative;
     bottom: 2px;
 }
+
 .casual-icon-right:before{
     content: "\25BA";
 }
 
+.casual-icon-down:before{
+    content: "\25BC";
+}
+
+.casual-icon-up:before{
+    content: "\25B2";
+}
+
 /*整体部分*/
 .casual-menu-list::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 /*滑动轨道*/

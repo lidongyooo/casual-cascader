@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="src/casual-cascader.css">
 </head>
 <body>
-    <input id="demo" style="margin-left: 500px;" type="text">
+    <input id="demo" style="margin-left: 500px;width: 500px;height: 100px;" type="text">
     <br>
     <input id="demo1" style="margin-left: 500px;margin-top: 100px;" type="text">
 
@@ -14,12 +14,21 @@
     <script type="text/javascript" src="src/data.js"></script>
     <script type="text/javascript">
         let xx = new CasualCascader(document.getElementById('demo'),cascaderData,{
-            names : []
+            names : [],
+            width : '230px',
+            height : '500px',
+            color : 'black',
+            activeColor: 'red',
+            delimiter : ' / ',
+            iconColor: 'blue',
+            iconSize : '20px'
         })
+
         let xx1 = new CasualCascader(document.getElementById('demo1'),cascaderData,{
-            close : false,
+            value : '湖南省/株洲市/芦淞区/建宁街道',
             isShow : true
         })
+
     </script>
 </body>
 </html>
