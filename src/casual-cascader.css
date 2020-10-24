@@ -1,7 +1,7 @@
 @charset "UTF-8";
 
 .casual-panel {
-    display: inline-flex;
+    display: none;
     border-radius: 4px;
     font-size: 14px; /*options*/
     color: #606266; /*options*/

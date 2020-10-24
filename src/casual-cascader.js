@@ -1,7 +1,7 @@
 /*!
     @Address：https://github.com/LiDong525/casual-cascader.git
     @Name: casual-cascader
-    @Description：无限级联选择
+    @Description：无限级联选择器
     @Author: lidong
     @License：MIT
 */
@@ -32,10 +32,10 @@ let CasualCascader = function (element, data, options) {
     //初始配置
     let config = {
         names: ['province', 'city', 'district', 'street'], //input的name值
-        delimiter: '/',
+        delimiter: ' / ',
         value: '',
         values: [],
-        placeHolder: '省/市/区/街道',
+        placeHolder: '省 / 市 / 区 / 街道',
         size: '14px',
         color: '#606266',
         activeColor: '#409eff',
@@ -45,14 +45,19 @@ let CasualCascader = function (element, data, options) {
         backgroundColor: 'white',
         children: 'children', //子级字段名称
         visibility: 'name', //显示字段名称
-        close: true,
-        isShow: false, //是否显示
-        isShowed : false,
+        isClose: true,
+        isOpen: false, //是否显示
+        isOpened : false,
         iconLeft: 0,
         iconTop: 0,
         iconSize : '16px',
-        iconColor : 'black'
+        iconColor : 'black',
+        clickEvent : function(element,value,options){},
+        openEvent : function(options){},
+        closeEvent : function(options){}
     }
+
+    element = _this.getElementById(element)
 
     if (!(element) || element.tagName !== 'INPUT') {
         throw '请给定一个input元素'
@@ -65,7 +70,7 @@ let CasualCascader = function (element, data, options) {
     _this.bindcasualConfigs(CASUAL_PANEL_CLASS + '-' + casualIndex, Object.assign(config, options))
     _this.render()
     _this.default()
-    _this.show()
+    _this.show(CASUAL_PANEL_CLASS + '-' + casualIndex)
 
     casualIndex++
 }
@@ -75,8 +80,32 @@ CasualCascader.prototype.bindcasualConfigs = function (key, config) {
     casualConfigs[key]['casualIndex'] = CASUAL_PANEL_CLASS + '-' + casualIndex
 }
 
-CasualCascader.prototype.setValue = function(element){
-    this.default(casualConfigs[element.nextSibling.nextSibling.classList[1]])
+CasualCascader.prototype.getElementById = function(element){
+    return typeof element === 'string' ? document.getElementById(element) : element
+}
+
+CasualCascader.prototype.setValue = function(element,value){
+    element = this.getElementById(element)
+    let config = casualConfigs[element.nextSibling.nextSibling.classList[1]]
+    config['value'] = typeof value === 'string' ? value : value.join(config['delimiter'])
+    this.default(config)
+}
+
+CasualCascader.prototype.open = function(element){
+    let panelIndex = this.changeDisplayStatus(element,true)
+    this.show(panelIndex)
+}
+
+CasualCascader.prototype.close = function(element){
+    let panelIndex = this.changeDisplayStatus(element,false)
+    this.show(panelIndex)
+}
+
+CasualCascader.prototype.changeDisplayStatus = function(element,flag) {
+    element = this.getElementById(element)
+    let panelIndex = element.nextSibling.nextSibling.classList[1]
+    casualConfigs[panelIndex]['isOpen'] = flag
+    return panelIndex
 }
 
 CasualCascader.prototype.default = function(config){
@@ -86,7 +115,7 @@ CasualCascader.prototype.default = function(config){
     config = config || casualConfigs[CASUAL_PANEL_CLASS + '-' + casualIndex]
 
     config.value = config.value || config['element'].value
-    config.values = config.values.length === 0 ? config.value.split(config['delimiter']) : config.values
+    config.values = config.value.split(config['delimiter'])
 
     for (let value of config.values){
         let items = getElementsByClassName(config['casualIndex']).getElementsByClassName(CASUAL_MENU_CLASS)[index].getElementsByClassName(CASUAL_MENU_LIST_ITEM_CLASS)
@@ -106,7 +135,7 @@ CasualCascader.prototype.default = function(config){
     }
 
     for (let key in casualConfigs){
-        casualConfigs[key]['isShowed'] = true
+        casualConfigs[key]['isOpened'] = true
     }
 }
 
@@ -122,8 +151,20 @@ CasualCascader.prototype.render = function () {
         },
         content = []
 
+    //初始化隐藏域
+    if(config['names'].length > 0){
+        content.push('<div class="input-'+config['casualIndex']+'">')
+        for (let name of config['names']){
+            content.push('<input type="hidden" name="'+name+'" >')
+        }
+        content.push(DIV_END)
+        insertHTML(config['element'],'beforebegin',content.join(''),false)
+        content = []
+    }
+
     config['element'].setAttribute('placeHolder', config['placeHolder'])
 
+    //首次加载面板
     content.push('<i class="' + ICON_UP_CLASS + '" style="color:'+config['iconColor']+';font-size: '+config['iconSize']+';position: absolute;left: ' + (spaceAttribute['left'] + spaceAttribute['width'] - 25 + parseInt(config['iconLeft'])) + 'px;top: ' + (spaceAttribute['top']+ spaceAttribute['height']/2 - 11 + parseInt(config['iconTop'])) + 'px"></i>' + CASUAL_PANEL)
     content = content.concat(generateMenu(config['data'], config))
     content.push(DIV_END)
@@ -132,6 +173,7 @@ CasualCascader.prototype.render = function () {
     //添加类名
     config['element'].nextSibling.nextSibling.classList.add(config['casualIndex'])
 
+    //设置面板样式
     _this.panelStyle(config, spaceAttribute)
 
     //绑定事件
@@ -162,21 +204,28 @@ CasualCascader.prototype.setStyle = function (element, styles) {
 
 //显示隐藏
 CasualCascader.prototype.show = function (event) {
-    let panelIndex = event !== undefined ? event.target.nextSibling.nextSibling.classList[1] : casualConfigs[CASUAL_PANEL_CLASS + '-' + casualIndex]['element'].nextSibling.nextSibling.classList[1],
+    let panelIndex = typeof event !== 'string' ? event.target.nextSibling.nextSibling.classList[1] : event,
         config = casualConfigs[panelIndex]
 
-    if (event !== undefined) {
+    if (typeof event !== 'string') {
         event.stopPropagation()
-        config['isShow'] = config['isShow'] ? false : true
+        config['isOpen'] = config['isOpen'] ? false : true
     }
 
-    if (config['isShow']) {
+    if (config['isOpen']) {
+        //首先关闭其他弹窗
+        hidePanel()
         getElementsByClassName(panelIndex)['style']['display'] = 'inline-flex'
         iconChanged(getElementsByClassName(panelIndex).previousSibling, 'up')
+
+        //弹出回调
+        config.openEvent(config)
     } else {
         getElementsByClassName(panelIndex)['style']['display'] = 'none'
         iconChanged(getElementsByClassName(panelIndex).previousSibling, 'down')
-        setValues(config)
+        casualSetValues(config)
+        //关闭回调
+        config.closeEvent(config)
     }
 }
 
@@ -204,6 +253,7 @@ CasualCascader.prototype.getElementTop = function (element) {
     return actualTop
 }
 
+//删除在自身之后的兄弟元素
 function removeNextSiblings(element, currCasualMenu, casualMenus) {
 
     let casualMenusLength = casualMenus.length,
@@ -223,6 +273,7 @@ function removeNextSiblings(element, currCasualMenu, casualMenus) {
     return casualMenus.length
 }
 
+//生成新menu
 function generateMenu(data, config, index) {
     let length = getElementsByClassName(config.casualIndex, 'much').length > 0 ? getElementsByClassName(config.casualIndex).getElementsByClassName(CASUAL_MENU_CLASS).length : 0,
         temp = [],
@@ -267,6 +318,7 @@ function stopPropagation() {
     }
 }
 
+//点击时触发
 function together(event) {
     let element = event.target.tagName === 'SPAN' ? event.target.parentNode : event.target,
         currCasualMenu = element.parentNode.parentNode,
@@ -295,16 +347,26 @@ function together(event) {
 
     insertHTML(getElementsByClassName(config['casualIndex']), 'beforeend', generateMenu(data, config, dataIndex.join('-')).join(''))
 
+    //回调点击事件
+    if(config['isOpened']){
+        config.clickEvent(element,element.getAttribute('data-value'),config)
+    }
 }
 
-function setValues(config) {
-    let actives = getElementsByClassName(config['casualIndex']).getElementsByClassName(ACTIVE_CLASS)
-    let index = 0
-    let temp = []
+function casualSetValues(config) {
+    let actives = getElementsByClassName(config['casualIndex']).getElementsByClassName(ACTIVE_CLASS),
+        index = 0,
+        temp = []
 
     for (let item of actives) {
         temp[index] = item.children[0].getAttribute('data-value')
         index++
+    }
+
+    index = 0
+    for (let name of config['names']){
+        getElementsByClassName('input-'+config['casualIndex']).children[index].value = temp[index] ? temp[index] : ''
+            index++
     }
 
     config['values'] = temp
@@ -312,9 +374,12 @@ function setValues(config) {
     config['element'].value = config['value']
 }
 
-function insertHTML(element, position, content) {
+function insertHTML(element, position, content, flag) {
+    flag = flag || true
     element.insertAdjacentHTML(position, content)
-    bindEvent()
+    if(flag){
+        bindEvent()
+    }
 }
 
 function bindEvent() {
@@ -329,6 +394,7 @@ function bindEvent() {
     }
 }
 
+//点击最后一个菜单时
 function clickLast(event) {
     let element = event.target,
         currCasualMenu = element.tagName === 'SPAN' ? element.parentNode.parentNode.parentNode : element.parentNode.parentNode,
@@ -337,7 +403,7 @@ function clickLast(event) {
     activeClass(element, config)
 
     //是否阻止事件冒泡
-    if (config.close === false || !config.isShowed) {
+    if (config.isClose === false || !config.isOpened) {
         event.stopPropagation()
     } else {
         hidePanel()
@@ -345,6 +411,7 @@ function clickLast(event) {
 
 }
 
+//点击切换class
 function activeClass(element, config) {
     element = element.tagName === 'SPAN' ? element.parentNode : element
     let children = element.parentNode.children
@@ -358,20 +425,23 @@ function activeClass(element, config) {
     element['style']['color'] = config['activeColor']
 }
 
+//隐藏所有面板
 function hidePanel() {
     let panels = getElementsByClassName(CASUAL_PANEL_CLASS, 'much')
     for (let panel of panels) {
         if (panel['style']['display'] !== 'none') {
             panel['style']['display'] = 'none'
+
+            casualConfigs[panel.classList[1]]['isOpen'] = false
+            iconChanged(casualConfigs[panel.classList[1]]['element'].nextSibling, 'down')
+            casualSetValues(casualConfigs[panel.classList[1]])
+            //关闭回调
+            casualConfigs[panel.classList[1]].closeEvent(casualConfigs[panel.classList[1]])
         }
-    }
-    for (let key in casualConfigs) {
-        casualConfigs[key]['isShow'] = false
-        iconChanged(casualConfigs[key]['element'].nextSibling, 'down')
-        setValues(casualConfigs[key])
     }
 }
 
+//切换icon
 function iconChanged(element, type) {
     if (type === 'down') {
         element.classList.remove(ICON_UP_CLASS)
@@ -381,6 +451,7 @@ function iconChanged(element, type) {
         element.classList.add(ICON_UP_CLASS)
     }
 }
+
 
 function getElementsByClassName(className, type) {
     type = type || 'single'

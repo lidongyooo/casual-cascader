@@ -8,26 +8,26 @@
 <body>
     <input id="demo" style="margin-left: 500px;width: 500px;height: 100px;" type="text">
     <br>
-    <input id="demo1" style="margin-left: 500px;margin-top: 100px;" type="text">
+    <input id="demo1" style="margin-left: 500px;width: 300px;height: 300px;margin-top: 100px;" type="text">
 
     <script type="text/javascript" src="src/casual-cascader.js"></script>
     <script type="text/javascript" src="src/data.js"></script>
     <script type="text/javascript">
         let xx = new CasualCascader(document.getElementById('demo'),cascaderData,{
             names : [],
-            width : '230px',
+            width : '350px',
             height : '500px',
             color : 'black',
             activeColor: 'red',
             delimiter : ' / ',
             iconColor: 'blue',
-            iconSize : '20px'
+            iconSize : '20px',
+            clickEvent : function(element){
+
+            }
         })
 
-        let xx1 = new CasualCascader(document.getElementById('demo1'),cascaderData,{
-            value : '湖南省/株洲市/芦淞区/建设街道',
-            isShow : true
-        })
+        let xx1 = new CasualCascader('demo1',cascaderData,{})
 
     </script>
 </body>
