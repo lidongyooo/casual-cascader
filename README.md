@@ -2,7 +2,7 @@
 
 ## casual-cascader
 
-### 本组件采用原生 javascript 编写
+### 无限极级联选择器，本组件采用原生 javascript 编写
 
 具体使用方法请参见 demo.html
 
