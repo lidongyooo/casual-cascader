@@ -6,29 +6,42 @@
     <link rel="stylesheet" href="src/casual-cascader.css">
 </head>
 <body>
-    <input id="demo" style="margin-left: 500px;width: 500px;height: 100px;" type="text">
+    <input id="demo" value="广东省 - 韶关市 - 曲江区 - 大塘镇" style="margin-left: 500px;width: 500px;height: 100px;" type="text">
     <br>
     <input id="demo1" style="margin-left: 500px;width: 300px;height: 300px;margin-top: 100px;" type="text">
 
     <script type="text/javascript" src="src/casual-cascader.js"></script>
     <script type="text/javascript" src="src/data.js"></script>
     <script type="text/javascript">
-        let xx = new CasualCascader(document.getElementById('demo'),cascaderData,{
+        let demo = new CasualCascader(document.getElementById('demo'),cascaderData,{
+            placeHolder : '省 - 市 - 区 - 街道',
             names : [],
             width : '350px',
             height : '500px',
             color : 'black',
             activeColor: 'red',
-            delimiter : ' / ',
+            delimiter : ' - ',
             iconColor: 'blue',
             iconSize : '20px',
-            clickEvent : function(element){
-
+            isOpen : true,
+            clickEvent : function(element,value,options){
+                console.log(element,value,options)
             }
         })
 
-        let xx1 = new CasualCascader('demo1',cascaderData,{})
+        let demo1 = new CasualCascader('demo1',cascaderData,{
+            openEvent : test
+        })
 
+
+        demo1.setValue('demo1',['广东省','深圳市'])
+        /*demo1.close('demo1')
+        demo1.open('demo1')
+        */
+
+        function test(options) {
+            //do something
+        }
     </script>
 </body>
 </html>

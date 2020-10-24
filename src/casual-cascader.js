@@ -137,6 +137,8 @@ CasualCascader.prototype.default = function(config){
     for (let key in casualConfigs){
         casualConfigs[key]['isOpened'] = true
     }
+
+    casualSetValues(config)
 }
 
 //渲染

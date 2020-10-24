@@ -6,6 +6,8 @@
 
 具体使用方法请参见 demo.html
 
+数据来源于 [here](https://github.com/modood/Administrative-divisions-of-China) ，如需更换源数据请参照 data.js 的数据格式
+
 ### 配置参数
 
 | 名称            | 是否必填 | 默认值                                              | 备注                                                         |
