@@ -116,11 +116,11 @@ CasualCascader.prototype.default = function(config){
 
     config.value = config.value || config['element'].value
     config.values = config.value.split(config['delimiter'])
-
     for (let value of config.values){
         let items = getElementsByClassName(config['casualIndex']).getElementsByClassName(CASUAL_MENU_CLASS)[index].getElementsByClassName(CASUAL_MENU_LIST_ITEM_CLASS)
         for (let item of items){
             if(item.getAttribute('data-value') === value){
+                item.setAttribute('data-click','1')
                 item.click()
                 flag = true
                 break
@@ -336,7 +336,7 @@ function together(event) {
     removeNextSiblings(element, currCasualMenu, casualMenus)
 
     //如果是选中状态则不渲染
-    if (element.classList.contains(ACTIVE_CLASS)) {
+    if (element.classList.contains(ACTIVE_CLASS) && element.getAttribute('data-click') === null) {
         element.classList.remove(ACTIVE_CLASS)
         return
     }
@@ -349,7 +349,6 @@ function together(event) {
     }
 
     insertHTML(getElementsByClassName(config['casualIndex']), 'beforeend', generateMenu(data, config, dataIndex.join('-')).join(''))
-
     //回调点击事件
     if(config['isOpened']){
         config.clickEvent(element,element.getAttribute('data-value'),config)
@@ -369,7 +368,7 @@ function casualSetValues(config) {
     index = 0
     for (let name of config['names']){
         getElementsByClassName('input-'+config['casualIndex']).children[index].value = temp[index] ? temp[index] : ''
-            index++
+        index++
     }
 
     config['values'] = temp
