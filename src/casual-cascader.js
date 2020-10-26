@@ -165,9 +165,10 @@ CasualCascader.prototype.render = function () {
     }
 
     config['element'].setAttribute('placeHolder', config['placeHolder'])
+    config['element'].setAttribute('readonly', 'readonly')
 
     //首次加载面板
-    content.push('<i class="' + ICON_UP_CLASS + '" style="color:'+config['iconColor']+';font-size: '+config['iconSize']+';position: absolute;left: ' + (spaceAttribute['left'] + spaceAttribute['width'] - 25 + parseInt(config['iconLeft'])) + 'px;top: ' + (spaceAttribute['top']+ spaceAttribute['height']/2 - 11 + parseInt(config['iconTop'])) + 'px"></i>' + CASUAL_PANEL)
+    content.push('<i class="' + ICON_UP_CLASS + '" style="color:'+config['iconColor']+';font-size: '+config['iconSize']+';position: fixed;left: ' + (spaceAttribute['left'] + spaceAttribute['width'] - 25 + parseInt(config['iconLeft'])) + 'px;top: ' + (spaceAttribute['top']+ spaceAttribute['height']/2 - 11 + parseInt(config['iconTop'])) + 'px"></i>' + CASUAL_PANEL)
     content = content.concat(generateMenu(config['data'], config))
     content.push(DIV_END)
     insertHTML(config['element'], 'afterend', content.join(''))
@@ -189,7 +190,7 @@ CasualCascader.prototype.panelStyle = function (config, spaceAttribute) {
     //panel 样式设置
     let panel = getElementsByClassName(config['casualIndex'])
     let styles = {
-        "position": 'absolute',
+        "position": 'fixed',
         "left": spaceAttribute['left'] + 'px',
         "top": (spaceAttribute['top'] + config['element'].offsetHeight + 8) + 'px',
         "font-size": config['size'],
