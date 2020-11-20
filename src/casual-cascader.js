@@ -161,7 +161,7 @@ CasualCascader.prototype.render = function () {
             content.push('<input type="hidden" name="'+name+'" >')
         }
         content.push(DIV_END)
-        insertHTML(BODY,'beforeend',content.join(''),false)
+        insertHTML(config['element'],'beforebegin',content.join(''),false)
         content = []
     }
 
