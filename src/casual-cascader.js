@@ -92,12 +92,23 @@ CasualCascader.prototype.setValue = function(element,value){
     this.default(config)
 }
 
+CasualCascader.prototype.remove = function(element){
+    element = this.getElementById(element)
+    delete casualConfigs[CASUAL_PANEL_CLASS+'-'+element.getAttribute('casual-index')]
+    let panel = getElementsByClassName(CASUAL_PANEL_CLASS+'-'+element.getAttribute('casual-index'))
+    panel.previousSibling.remove()
+    panel.remove()
+    getElementsByClassName('input-'+CASUAL_PANEL_CLASS+'-'+element.getAttribute('casual-index')).remove()
+}
+
 CasualCascader.prototype.open = function(element){
+    element = this.getElementById(element)
     let panelIndex = this.changeDisplayStatus(element,true)
     this.show(panelIndex)
 }
 
 CasualCascader.prototype.close = function(element){
+    element = this.getElementById(element)
     let panelIndex = this.changeDisplayStatus(element,false)
     this.show(panelIndex)
 }
@@ -156,7 +167,7 @@ CasualCascader.prototype.render = function () {
 
     //初始化隐藏域
     if(config['names'].length > 0){
-        content.push('<div class="input-'+config['casualIndex']+'">')
+        content.push('<div class="input-'+CASUAL_PANEL_CLASS+' input-'+config['casualIndex']+'">')
         for (let name of config['names']){
             content.push('<input type="hidden" name="'+name+'" >')
         }
@@ -167,6 +178,7 @@ CasualCascader.prototype.render = function () {
 
     config['element'].setAttribute('placeHolder', config['placeHolder'])
     config['element'].setAttribute('readonly', 'readonly')
+    config['element']['style']['cursor'] = 'default'
 
     //首次加载面板
     content.push('<i class="' + ICON_UP_CLASS + '" style="color:'+config['iconColor']+';font-size: '+config['iconSize']+';position: absolute;left: ' + (spaceAttribute['left'] + spaceAttribute['width'] - 25 + parseInt(config['iconLeft'])) + 'px;top: ' + (spaceAttribute['top']+ spaceAttribute['height']/2 - 11 + parseInt(config['iconTop'])) + 'px"></i>' + '<div class="casual-panel '+config['casualIndex']+'">')
@@ -374,7 +386,7 @@ function casualSetValues(config) {
 
     config['values'] = temp
     config['value'] = temp.join(config['delimiter'])
-    config['element'].value = config['value']
+    config['element'].setAttribute("value",config['value'])
 }
 
 function insertHTML(element, position, content, flag) {
