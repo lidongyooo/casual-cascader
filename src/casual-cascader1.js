@@ -13,8 +13,7 @@
 const CASUAL_PANEL = '<div class="casual-panel">',
     CASUAL_MENU = '<div class="casual-menu">',
     CASUAL_MENU_LIST = '<ul class="casual-menu-list">',
-    DIV_END = '</div>',
-    BODY = document.getElementsByTagName('body')[0]
+    DIV_END = '</div>'
 
 const CASUAL_PANEL_CLASS = 'casual-panel',
     CASUAL_MENU_CLASS = 'casual-menu',
@@ -87,7 +86,7 @@ CasualCascader.prototype.getElementById = function(element){
 
 CasualCascader.prototype.setValue = function(element,value){
     element = this.getElementById(element)
-    let config = casualConfigs[CASUAL_PANEL_CLASS+'-'+element.getAttribute('casual-index')]
+    let config = casualConfigs[element.nextSibling.nextSibling.classList[1]]
     config['value'] = typeof value === 'string' ? value : value.join(config['delimiter'])
     this.default(config)
 }
@@ -104,24 +103,26 @@ CasualCascader.prototype.close = function(element){
 
 CasualCascader.prototype.changeDisplayStatus = function(element,flag) {
     element = this.getElementById(element)
-    let panelIndex = CASUAL_PANEL_CLASS+'-'+element.getAttribute('casual-index')
+    let panelIndex = element.nextSibling.nextSibling.classList[1]
     casualConfigs[panelIndex]['isOpen'] = flag
     return panelIndex
 }
 
 CasualCascader.prototype.default = function(config){
-    let index = 0,
-        flag = true
 
     config = config || casualConfigs[CASUAL_PANEL_CLASS + '-' + casualIndex]
 
     config.value = config.value || config['element'].value
     config.values = config.value.split(config['delimiter'])
-    for (let value of config.values){
+
+    if(config.values[0] !== undefined){
+        setValueHandler(config,0)
+    }
+
+    /*for (let value of config.values){
         let items = getElementsByClassName(config['casualIndex']).getElementsByClassName(CASUAL_MENU_CLASS)[index].getElementsByClassName(CASUAL_MENU_LIST_ITEM_CLASS)
         for (let item of items){
             if(item.getAttribute('data-value') === value){
-                item.setAttribute('data-click','1')
                 item.click()
                 flag = true
                 break
@@ -139,7 +140,7 @@ CasualCascader.prototype.default = function(config){
         casualConfigs[key]['isOpened'] = true
     }
 
-    casualSetValues(config)
+    casualSetValues(config)*/
 }
 
 //渲染
@@ -161,7 +162,7 @@ CasualCascader.prototype.render = function () {
             content.push('<input type="hidden" name="'+name+'" >')
         }
         content.push(DIV_END)
-        insertHTML(BODY,'beforeend',content.join(''),false)
+        insertHTML(config['element'],'beforebegin',content.join(''),false)
         content = []
     }
 
@@ -169,13 +170,13 @@ CasualCascader.prototype.render = function () {
     config['element'].setAttribute('readonly', 'readonly')
 
     //首次加载面板
-    content.push('<i class="' + ICON_UP_CLASS + '" style="color:'+config['iconColor']+';font-size: '+config['iconSize']+';position: absolute;left: ' + (spaceAttribute['left'] + spaceAttribute['width'] - 25 + parseInt(config['iconLeft'])) + 'px;top: ' + (spaceAttribute['top']+ spaceAttribute['height']/2 - 11 + parseInt(config['iconTop'])) + 'px"></i>' + '<div class="casual-panel '+config['casualIndex']+'">')
+    content.push('<i class="' + ICON_UP_CLASS + '" style="color:'+config['iconColor']+';font-size: '+config['iconSize']+';position: fixed;left: ' + (spaceAttribute['left'] + spaceAttribute['width'] - 25 + parseInt(config['iconLeft'])) + 'px;top: ' + (spaceAttribute['top']+ spaceAttribute['height']/2 - 11 + parseInt(config['iconTop'])) + 'px"></i>' + CASUAL_PANEL)
     content = content.concat(generateMenu(config['data'], config))
     content.push(DIV_END)
-    insertHTML(BODY, 'beforeend', content.join(''))
+    insertHTML(config['element'], 'afterend', content.join(''))
 
     //添加类名
-    config['element'].setAttribute('casual-index',casualIndex)
+    config['element'].nextSibling.nextSibling.classList.add(config['casualIndex'])
 
     //设置面板样式
     _this.panelStyle(config, spaceAttribute)
@@ -191,7 +192,7 @@ CasualCascader.prototype.panelStyle = function (config, spaceAttribute) {
     //panel 样式设置
     let panel = getElementsByClassName(config['casualIndex'])
     let styles = {
-        "position": 'absolute',
+        "position": 'fixed',
         "left": spaceAttribute['left'] + 'px',
         "top": (spaceAttribute['top'] + config['element'].offsetHeight + 8) + 'px',
         "font-size": config['size'],
@@ -208,7 +209,7 @@ CasualCascader.prototype.setStyle = function (element, styles) {
 
 //显示隐藏
 CasualCascader.prototype.show = function (event) {
-    let panelIndex = typeof event !== 'string' ? CASUAL_PANEL_CLASS+'-'+event.target.getAttribute('casual-index') : event,
+    let panelIndex = typeof event !== 'string' ? event.target.nextSibling.nextSibling.classList[1] : event,
         config = casualConfigs[panelIndex]
 
     if (typeof event !== 'string') {
@@ -350,9 +351,14 @@ function together(event) {
     }
 
     insertHTML(getElementsByClassName(config['casualIndex']), 'beforeend', generateMenu(data, config, dataIndex.join('-')).join(''))
+
     //回调点击事件
     if(config['isOpened']){
         config.clickEvent(element,element.getAttribute('data-value'),config)
+    }
+
+    if(element.getAttribute('data-click') !== null){
+        setValueHandler(config,casualMenus.length-1)
     }
 }
 
@@ -436,7 +442,7 @@ function hidePanel() {
             panel['style']['display'] = 'none'
 
             casualConfigs[panel.classList[1]]['isOpen'] = false
-            iconChanged(getElementsByClassName(CASUAL_PANEL_CLASS+'-'+casualConfigs[panel.classList[1]]['element'].getAttribute('casual-index')).previousSibling, 'down')
+            iconChanged(casualConfigs[panel.classList[1]]['element'].nextSibling, 'down')
             casualSetValues(casualConfigs[panel.classList[1]])
             //关闭回调
             casualConfigs[panel.classList[1]].closeEvent(casualConfigs[panel.classList[1]])
@@ -459,4 +465,28 @@ function iconChanged(element, type) {
 function getElementsByClassName(className, type) {
     type = type || 'single'
     return type === 'single' ? document.getElementsByClassName(className)[0] : document.getElementsByClassName(className)
+}
+
+function setValueHandler(config,index){
+    index = index || 0
+
+    let value = config['values'][index],
+        items = getElementsByClassName(config['casualIndex']).getElementsByClassName(CASUAL_MENU_CLASS)[index].getElementsByClassName(CASUAL_MENU_LIST_ITEM_CLASS)
+
+    if(value !== undefined){
+        for (let item of items){
+            if(item.getAttribute('data-value') === value){
+                item.setAttribute('data-click','1')
+                item.click()
+                break
+            }
+        }
+
+        for (let key in casualConfigs){
+            casualConfigs[key]['isOpened'] = true
+        }
+
+        casualSetValues(config)
+    }
+
 }
